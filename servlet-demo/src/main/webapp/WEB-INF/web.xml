@@ -1,0 +1,28 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+  
+  <servlet>
+  	<servlet-name>XHello</servlet-name>
+  	<servlet-class>it.aiv.jee.HelloServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+  	<servlet-name>XSum</servlet-name>
+  	<servlet-class>it.aiv.jee.SumServlet</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+  	<servlet-name>XHello</servlet-name>
+  	<url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+  	<servlet-name>XSum</servlet-name>
+  	<url-pattern>/sum</url-pattern>
+  </servlet-mapping>
+</web-app>
