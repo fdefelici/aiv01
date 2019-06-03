@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+	<script>
+	 var config = {
+		parent: 'scene-container',
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 0 },
+				debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+			update: update
+	    }
+    };
+
+    var game = new Phaser.Game(config);
+	
+	player = undefined;
+	
+    function preload ()
+    {	
+		//Using local file path just as quick and dirty trial
+        this.load.setBaseURL('file://C:/_fdf/projects/workspace_aiv/courses/java-programming/bench-js');
+
+        this.load.image('wall', 'wall.png');
+		this.load.image('player', 'player.png')
+    }
+
+    function create ()
+    {
+	
+		INSTANCE = this;
+		cursors = this.input.keyboard.createCursorKeys();
+    }
+	
+	function update() {
+		if (player === undefined) return;
+	
+		if (cursors.left.isDown)
+		{
+			player.setVelocityX(-160);
+		}
+		else if (cursors.right.isDown) {
+			player.setVelocityX(160);
+		}
+		else if (cursors.up.isDown)
+		{
+			player.setVelocityY(-160);
+		}
+		else if (cursors.down.isDown) {
+			player.setVelocityY(160);
+		}
+		else
+		{
+			player.setVelocityX(0);
+			player.setVelocityY(0);
+		}
+	}	
+   </script>
+   
+   <script>
+   	function tileSize(matrix) {
+		var tileW = 800 / matrix[0].length;
+		var tileH = 600 / matrix.length;
+		return tileW > tileH ? tileH : tileW;
+	}
+   
+   function walls(matrix) {
+		var walls = INSTANCE.physics.add.staticGroup();
+	
+		var size = tileSize(matrix);
+		for(var i=0; i<matrix.length; i++) {
+			for(var j=0; j<matrix[0].length; j++) {
+				var value = matrix[i][j]
+				var posX = j * size;
+				var posY = i * size;
+				if (value != 0) {
+					walls.create(posX, posY, 'wall').setDisplaySize(size, size).refreshBody();
+				}
+			}
+		}
+		
+		return walls;
+
+	}
+	
+	function createPlayer(matrix) {
+		var size = tileSize(matrix);
+		var playerSize = size / 2;
+		
+		for(var i=0; i<matrix.length; i++) {
+			for(var j=0; j<matrix[0].length; j++) {
+				var value = matrix[i][j]
+				if (value == 0) {
+					var posX = j * size + playerSize;
+					var posY = i * size + playerSize;
+					
+					player = INSTANCE.physics.add.sprite(posX, posY, 'player');
+					player.setDisplaySize(playerSize, playerSize)
+					return player;
+				}
+			}
+		}
+		
+		return null;
+		
+	}
+   
+   
+   
+   
+	function fetchAsync() {
+		var url = 'http://localhost:8080/dungen?';
+		
+		url += 'height=' + document.getElementById("height").value
+		url += '&width=' + document.getElementById("width").value 
+		
+		
+		const request = async () => {
+			const response = await fetch(url, {method: 'GET'});
+			const json = await response.json();
+			
+			if (player !== undefined) {
+				blocks.clear(true, true);
+				player.destroy();
+			}
+			
+			blocks = walls(json);
+	
+			player = createPlayer(json);
+			
+			INSTANCE.physics.add.collider(player, blocks);
+		}
+		request();	
+	}
+   
+   </script>
+	</head>
+<body>
+	<div id="input-form">
+		<form id="myform" action="javascript:fetchAsync()">
+			WIDTH: <input type="text" id="width" name="width" value="100" /><br/>
+			HEIGHT: <input type="text" id="height" name="height" value="80" /><br/>
+			
+			<input type="submit" value="Generate">
+		</form>
+	</div>
+	<div id="scene-container"></div>
+</body>
+</html>
